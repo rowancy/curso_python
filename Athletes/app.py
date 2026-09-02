@@ -20,13 +20,19 @@ def convert_json_to_teams(json_data):
         sport_name = team_data['sport']['name']
         sport_league = team_data['sport']['league']
         sport_num_players = team_data['sport']['num_players']
-        print(team_name,sport_name,sport_league,sport_num_players)
-    
+        print("---",team_name,sport_name,sport_league,sport_num_players)
+        sport = Sport(sport_name, sport_league, sport_num_players)
+        team = Team(team_name, sport)
+            for athlete_data in team_data['atheletes']:
+                athlete_name = athlete_data['name']
+                athlete_age = athlete_data['number']
+                athlete = Athlete(athlete_name, athlete_age, athlete_data)
 def main():
     """ Main function to create teams, athletes, and simulate a game."""
     # Load data from JSON files
     tournament_data = load_json_file('curso_ds4_2026/Athletes/tournament.json')
-    print("Tournament:", tournament_data)
+    teams = convert_json_to_teams(tournament_data)
+    #print("Tournament:", tournament_data)
 
 if __name__ == "__main__":
     main()
