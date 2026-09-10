@@ -21,6 +21,7 @@ class Hangman:
 
     def display_board(self):
         """Display the current state of the game board."""
+        print(self.board[self.LIVES - self.num_lives])
         print(self.board[self.num_lives])
         print(" ".join(self.word_guessed))
         print(f"Lives remaining: {self.num_lives}")
