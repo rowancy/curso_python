@@ -8,9 +8,29 @@ class Sport:
         "Voleyball":3,
         "Tennis":3
     }
+    aliases = {
+        "Futbol": "Soccer",
+        "Football": "Football",
+        "Soccer": "Soccer",
+        "Basketball": "Basketball",
+        "Baseball": "Baseball",
+        "Voleyball": "Voleyball",
+        "Tennis": "Tennis"
+    }
+
+    @classmethod
+    def normalize_name(cls, sport_name):
+        normalized_name = cls.aliases.get(sport_name)
+        if normalized_name is None:
+            raise ValueError(
+                f"Sport name '{sport_name}' should be:{', '.join(cls.max_score.keys())}"
+            )
+        return normalized_name
+
     def __init__(self, sport_name:str, num_players:int, league:str):
-        if sport_name in self.max_score:
-            self.sport_name = sport_name
+        normalized_name = self.normalize_name(sport_name)
+        if normalized_name in self.max_score:
+            self.sport_name = normalized_name
             self.num_players = num_players
             self.league = league
         else:
