@@ -61,13 +61,10 @@ def retrieve_data(conn, table_name: str) -> list:
     return rows
 
 def retrieve_data_with_query(conn, query: str) -> list:
-    """ Retrieve data from the database using a custom SQL query 
-    Returns a list of dictionaries, where each dictionary represents a row in the result set.
-    """
+    """ Retrieve data from the database using a custom SQL query """
     cur = conn.cursor()
     cur.execute(query)
-    fields = [description[0] for description in cur.description]
-    rows = [dict(zip(fields, row)) for row in cur.fetchall()]
+    rows = cur.fetchall()
     return rows
 
 def show_rows(rows: list):
@@ -179,7 +176,6 @@ def main():
     show_rows(stars_rows)
 
     movies_rows = retrieve_data_with_query(conn, "SELECT movie_title, release_date FROM movies WHERE movie_title LIKE '%dune%';")
-    print("--------------------")
     print("Movies with 'dune' in the title:")
     show_rows(movies_rows)
     close_database(conn)
