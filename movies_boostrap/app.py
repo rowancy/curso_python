@@ -1,5 +1,6 @@
 """ A simple movie database application """
 
+import datetime
 import os
 
 from flask import Flask, flash, redirect, render_template
@@ -73,6 +74,59 @@ def star_detail(star_id):
     #print(related_movies)  # Debugging line
     return render_template('star_detail.html', rows=rows, movies=related_movies)
 
+@app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
+def edit_movie(movie_id):
+    """Edit a movie's details; only authenticated users may make changes."""
+    if not session.get('logged_in'):
+        flash('Please log in to edit a movie.', 'warning')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        conn = db.open_database('movies.db')
+        try:
+            updated = db.update_movie(conn, movie_id, request.form)
+        finally:
+            db.close_database(conn)
+        if not updated:
+            return 'Movie not found', 404
+        return redirect(url_for('movies'))
+    conn = db.open_database('movies.db')
+    try:
+        movie = db.get_movie(conn, movie_id)
+    finally:
+        db.close_database(conn)
+    if movie is None:
+        return 'Movie not found', 404
+
+    return render_template('edit_movie.html', movie=movie)
+
+@app.route('/edit_star/<int:star_id>', methods=['GET', 'POST'])
+def edit_star(star_id):
+    """Edit a star's details; only authenticated users may make changes."""
+    if not session.get('logged_in'):
+        flash('Please log in to edit a star.', 'warning')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        conn = db.open_database('movies.db')
+        try:
+            updated = db.update_star(conn, star_id, request.form)
+        finally:
+            db.close_database(conn)
+        if not updated:
+            return 'Star not found', 404
+        return redirect(url_for('stars'))
+
+    conn = db.open_database('movies.db')
+    try:
+        star = db.get_star(conn, star_id)
+    finally:
+        db.close_database(conn)
+    if star is None:
+        return 'Star not found', 404
+
+    return render_template('edit_star.html', star=star)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """ Route to display the login page """
@@ -93,6 +147,27 @@ def logout():
     session.clear()
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('index'))
+
+@app.route('/add_star', methods=['GET', 'POST'])
+def add_star():
+    """ Route to add a new star """
+    if request.method == 'POST':
+        name = request.form['name']
+        real_name = request.form['real_name']
+        place_of_birth = request.form['place_of_birth']
+        image_url = request.form['image_url']
+        birthdate = request.form['birthdate']
+        db_path = 'movies.db'
+        conn = db.open_database(db_path)
+        d = { 'created_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'stage_name': name,
+             'real_name': real_name, 
+             'place_of_birth': place_of_birth, 'image_url': image_url, 
+             'username': session.get('username'), 'date_of_birth': birthdate}
+        print(f"Adding star with data: {d}")  # Debugging line
+        db.insert_data(conn,'stars', d)
+        db.close_database(conn)
+        return redirect(url_for('stars'))
+    return render_template('add_star.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
